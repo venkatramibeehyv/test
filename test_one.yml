@@ -2,25 +2,13 @@
   hosts: all
   become: yes
   tasks:
-    - name: Download the GLPI agent AppImage
-      ansible.builtin.get_url:
-        url: https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent-1.11-x86_64.AppImage
-        dest: /tmp/glpi-agent-1.11-x86_64.AppImage
-        mode: '0755'
+    - name: Download the GLPI agent AppImage using wget
+      ansible.builtin.command:
+        cmd: wget https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent-1.11-x86_64.AppImage -O /tmp/glpi-agent-1.11-x86_64.AppImage
 
-    - name: Verify the GLPI agent AppImage was downloaded
-      ansible.builtin.stat:
-        path: /tmp/glpi-agent-1.11-x86_64.AppImage
-      register: appimage_stat
-
-    - name: Debug download status
-      ansible.builtin.debug:
-        msg: "Download status: {{ appimage_stat }}"
-
-    - name: Fail if the GLPI agent AppImage is missing
-      ansible.builtin.fail:
-        msg: "The GLPI agent AppImage file was not downloaded."
-      when: not appimage_stat.stat.exists
+    - name: Check file existence after download
+      ansible.builtin.command:
+        cmd: ls -l /tmp/glpi-agent-1.11-x86_64.AppImage
 
     - name: Make the GLPI agent AppImage executable
       ansible.builtin.file:
@@ -31,7 +19,9 @@
       ansible.builtin.command:
         cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
         chdir: /tmp
+      become: yes
 
     - name: Start the GLPI agent
       ansible.builtin.command:
         cmd: glpi-agent
+      become: yes
