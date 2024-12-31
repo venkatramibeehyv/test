@@ -1,37 +1,25 @@
-- name: Install and configure GLPI Agent on Ubuntu machines
+---
+- name: Setup and run GLPI Agent
   hosts: all
-  become: yes
-  become_user: root
+  become: true  # Ensure that the playbook runs with sudo privileges
   tasks:
-    - name: Ensure wget is installed
-      ansible.builtin.package:
-        name: wget
-        state: present
-
-    - name: Download the GLPI agent AppImage
-      ansible.builtin.get_url:
+    - name: Download GLPI agent AppImage
+      get_url:
         url: https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent-1.11-x86_64.AppImage
         dest: /tmp/glpi-agent-1.11-x86_64.AppImage
-        mode: '0755'
+        mode: '0755'  # Set the file permissions to be executable upon download
 
-    - name: Verify the GLPI agent AppImage exists
-      ansible.builtin.stat:
+    - name: Make GLPI agent AppImage executable
+      file:
         path: /tmp/glpi-agent-1.11-x86_64.AppImage
-      register: glpi_agent_file
+        mode: '0755'  # Ensure the file is executable
 
-    - name: Fail if the GLPI agent AppImage is missing
-      ansible.builtin.fail:
-        msg: "The GLPI agent AppImage file was not downloaded."
-      when: not glpi_agent_file.stat.exists
+    - name: Install GLPI agent
+      command: /tmp/glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
+      args:
+        creates: /etc/glpi-agent # This assumes the installation creates this file; adjust as needed for your environment
 
-    - name: Install the GLPI agent
-      ansible.builtin.command:
-        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
-        args:
-          chdir: /tmp
-
-    - name: Start the GLPI agent
-      ansible.builtin.systemd:
-        name: glpi-agent
-        enabled: yes
-        state: started
+    - name: Run GLPI agent service
+      command: sudo glpi-agent
+      args:
+        creates: /var/log/glpi-agent.log # Assuming the agent creates a log file here; adjust path as needed
