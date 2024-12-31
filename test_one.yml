@@ -23,16 +23,14 @@
         msg: "The GLPI agent AppImage file was not downloaded."
       when: not glpi_agent_file.stat.exists
 
-    - name: Install the GLPI agent
-      ansible.builtin.command:
-        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
+    - name: Install the GLPI agent (with sudo)
+      ansible.builtin.shell:
+        cmd: sudo ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
         chdir: /tmp
-      become: yes
 
     - name: Start the GLPI agent
-      ansible.builtin.command:
-        cmd: glpi-agent
-      become: yes
+      ansible.builtin.shell:
+        cmd: sudo glpi-agent
 
     - name: Ensure GLPI agent starts on boot
       ansible.builtin.systemd:
