@@ -29,7 +29,7 @@
 
     - name: Install the GLPI agent
       ansible.builtin.command:
-        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server 192.168.1.1
+        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
         chdir: /tmp
 
     - name: Start the GLPI agent
