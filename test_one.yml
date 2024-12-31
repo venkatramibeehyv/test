@@ -13,6 +13,10 @@
         path: /tmp/glpi-agent-1.11-x86_64.AppImage
       register: appimage_stat
 
+    - name: Debug download status
+      ansible.builtin.debug:
+        msg: "Download status: {{ appimage_stat }}"
+
     - name: Fail if the GLPI agent AppImage is missing
       ansible.builtin.fail:
         msg: "The GLPI agent AppImage file was not downloaded."
