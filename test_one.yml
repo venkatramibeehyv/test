@@ -1,6 +1,7 @@
 - name: Install and configure GLPI Agent on Ubuntu machines
   hosts: all
   become: yes
+  become_user: root
   tasks:
     - name: Ensure wget is installed
       ansible.builtin.package:
@@ -23,16 +24,13 @@
         msg: "The GLPI agent AppImage file was not downloaded."
       when: not glpi_agent_file.stat.exists
 
-    - name: Install the GLPI agent (with sudo)
-      ansible.builtin.shell:
-        cmd: sudo ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
-        chdir: /tmp
+    - name: Install the GLPI agent
+      ansible.builtin.command:
+        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
+        args:
+          chdir: /tmp
 
     - name: Start the GLPI agent
-      ansible.builtin.shell:
-        cmd: sudo glpi-agent
-
-    - name: Ensure GLPI agent starts on boot
       ansible.builtin.systemd:
         name: glpi-agent
         enabled: yes
