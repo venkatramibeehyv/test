@@ -1,0 +1,25 @@
+---
+- name: Install and configure GLPI Agent on Ubuntu machines
+  hosts: all
+  become: yes
+  tasks:
+    - name: Download the GLPI agent AppImage
+      ansible.builtin.get_url:
+        url: https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent-1.11-x86_64.AppImage
+        dest: /tmp/glpi-agent-1.11-x86_64.AppImage
+        mode: '0755'
+
+    - name: Make the GLPI agent AppImage executable
+      ansible.builtin.file:
+        path: /tmp/glpi-agent-1.11-x86_64.AppImage
+        mode: '0755'
+
+    - name: Install the GLPI agent
+      ansible.builtin.command:
+        cmd: ./glpi-agent-1.11-x86_64.AppImage --install --server 192.168.1.1
+        chdir: /tmp
+
+    - name: Start the GLPI agent
+      ansible.builtin.command:
+        cmd: glpi-agent
+        become: yes
