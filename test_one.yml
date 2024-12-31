@@ -16,10 +16,12 @@
 
     - name: Install GLPI agent
       command: /tmp/glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
+      become: true  # Ensure the installation step runs as root
       args:
         creates: /etc/glpi-agent # This assumes the installation creates this file; adjust as needed for your environment
 
     - name: Run GLPI agent service
-      command: sudo glpi-agent
+      command: glpi-agent
+      become: true  # Ensure this runs with root privileges
       args:
         creates: /var/log/glpi-agent.log # Assuming the agent creates a log file here; adjust path as needed
