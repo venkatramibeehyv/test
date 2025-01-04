@@ -2,6 +2,7 @@
 - name: Deploy GLPI Agent Using AppImage
   hosts: all
   become: true
+  become_user: root
   tasks:
     - name: Download GLPI Agent AppImage
       get_url:
@@ -16,11 +17,13 @@
 
     - name: Install GLPI Agent
       command: >
-        /tmp/glpi-agent-1.11-x86_64.AppImage --install --server http://<GLPI-domain>
+        /tmp/glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
       become: true
+      become_user: root
       args:
         creates: /etc/glpi-agent
 
     - name: Start GLPI Agent
       command: glpi-agent
       become: true
+      become_user: root
