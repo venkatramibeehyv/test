@@ -17,8 +17,10 @@
     - name: Install GLPI Agent
       command: >
         /tmp/glpi-agent-1.11-x86_64.AppImage --install --server http://<GLPI-domain>
+      become: true
       args:
         creates: /etc/glpi-agent
 
     - name: Start GLPI Agent
       command: glpi-agent
+      become: true
