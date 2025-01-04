@@ -1,31 +1,24 @@
 ---
-- name: Setup and run GLPI Agent
+- name: Deploy GLPI Agent Using AppImage
   hosts: all
   become: true
-  become_method: sudo
-  become_user: root
-  vars:
-    ansible_become_password: "your_password"  # Replace with your sudo password
   tasks:
-    - name: Download GLPI agent AppImage
+    - name: Download GLPI Agent AppImage
       get_url:
         url: https://github.com/glpi-project/glpi-agent/releases/download/1.11/glpi-agent-1.11-x86_64.AppImage
         dest: /tmp/glpi-agent-1.11-x86_64.AppImage
-        mode: '0755'  # Set the file permissions to be executable upon download
+        mode: '0755'
 
-    - name: Make GLPI agent AppImage executable
+    - name: Make the AppImage executable
       file:
         path: /tmp/glpi-agent-1.11-x86_64.AppImage
-        mode: '0755'  # Ensure the file is executable
+        mode: '0755'
 
-    - name: Install GLPI agent
-      command: /tmp/glpi-agent-1.11-x86_64.AppImage --install --server https://infra.beehyv.com
-      become: true  # Ensure the installation step runs as root
+    - name: Install GLPI Agent
+      command: >
+        /tmp/glpi-agent-1.11-x86_64.AppImage --install --server http://<GLPI-domain>
       args:
-        creates: /etc/glpi-agent  # Change this path based on actual installation output
+        creates: /etc/glpi-agent
 
-    - name: Run GLPI agent service
+    - name: Start GLPI Agent
       command: glpi-agent
-      become: true  # Ensure this runs with root privileges
-      args:
-        creates: /var/log/glpi-agent.log  # Assuming the agent creates a log file here
